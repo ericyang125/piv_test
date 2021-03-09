@@ -8,7 +8,7 @@ import sys
 import os
 
 # append openpiv to pythonpath
-sys.path.append('/home/eric/Repos/openpiv-python')
+# sys.path.append('/home/eric/Repos/openpiv-python')
 
 from openpiv import windef
 from openpiv import tools, scaling, validation, filters, preprocess
