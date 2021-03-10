@@ -10,7 +10,8 @@ import os
 # append openpiv to pythonpath
 # sys.path.append('/home/eric/Repos/openpiv-python')
 
-from openpiv import windef
+import windef
+# from openpiv import windef
 from openpiv import tools, scaling, validation, filters, preprocess
 import openpiv.pyprocess as process
 from openpiv import pyprocess
@@ -20,6 +21,9 @@ import os
 from time import time
 import warnings
 import matplotlib.pyplot as plt
+
+# the numbering of the image files
+im_range = (250, 255)
 
 # gets the example directory
 example_dir = os.path.dirname(os.path.abspath(__file__)) + '/example/'
@@ -57,7 +61,7 @@ settings.deformation_method = 'symmetric'
 settings.correlation_method = 'circular'  # 'circular' or 'linear'
 settings.normalized_correlation = False
 
-settings.iterations = 2  # select the number of PIV passes
+settings.num_iterations = 2  # select the number of PIV passes
 # add the interroagtion window size for each pass.
 # For the moment, it should be a power of 2
 settings.windowsizes = (64, 32, 16)  # if longer than n iteration the rest is ignored
@@ -72,7 +76,7 @@ settings.scaling_factor = 1  # scaling factor pixel/meter
 settings.dt = 1  # time between to frames (in seconds)
 'Signal to noise ratio options (only for the last pass)'
 # It is possible to decide if the S/N should be computed (for the last pass) or not
-settings.extract_sig2noise = True  # 'True' or 'False' (only for the last pass)
+# settings.extract_sig2noise = True  # 'True' or 'False' (only for the last pass)
 # method used to calculate the signal to noise ratio 'peak2peak' or 'peak2mean'
 settings.sig2noise_method = 'peak2peak'
 # select the width of the masked to masked out pixels next to the main peak
@@ -100,7 +104,7 @@ settings.median_size = 1  # defines the size of the local median
 # Note: only available when extract_sig2noise==True and only for the last
 # pass of the interrogation
 # Enable the signal to noise ratio validation. Options: True or False
-settings.do_sig2noise_validation = False # This is time consuming
+# settings.do_sig2noise_validation = False  # This is time consuming
 # minmum signal to noise ratio that is need for a valid vector
 settings.sig2noise_threshold = 1.2
 'Outlier replacement or Smoothing options'
@@ -120,14 +124,19 @@ settings.save_plot = True
 # Choose whether you want to see the vectorfield or not :True or False
 settings.show_plot = True
 settings.scale_plot = 200
-# counter += 1
+# settings.counter += 1
 # select a value to scale the quiver plot of the vectorfield
 
 if __name__ == '__main__':
-    for i in range(250, 255):
+    for i in range(im_range[0], im_range[1]):
+        print('Doing field {}'.format(i))
+
         # Format and Image Sequence
         settings.frame_pattern_a = '{:04d}_a.tiff'.format(i)
         settings.frame_pattern_b = '{:04d}_b.tiff'.format(i)
 
         # run the script with the given settings
-        windef.piv(settings)
+        x, y, u, v, mask = windef.piv(settings)
+
+        # save the results
+        tools.save(x, y, u, v, mask, os.path.join(settings.save_path, 'vel_field_{:04d}'.format(i)), delimiter="\t",)
